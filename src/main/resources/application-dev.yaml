@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/messseat?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Dhaka&characterEncoding=UTF-8}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:Ab!dullah1}
+
+  jpa:
+    # table are fully managed using JPA entities classes
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  # SMTP configuration
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+        transport:
+          protocol: smtp
+
+app:
+  otp:
+    expiry-minutes: ${OTP_EXPIRY_MIN:5}
+    max-per-hour: ${OTP_MAX_PER_HOUR:6}
+    resend-cooldown-seconds: ${OTP_RESEND_COOLDOWN_SEC:50}
+    max-attempts: ${OTP_MAX_ATTEMPTS:5}
+
+  mail:
+    from: ${MAIL_FROM:Mess Seat <no-replay@messseat.com>}

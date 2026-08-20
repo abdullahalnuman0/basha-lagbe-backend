@@ -1,3 +1,5 @@
 spring:
   application:
     name: backend
+  profiles:
+    active: dev
