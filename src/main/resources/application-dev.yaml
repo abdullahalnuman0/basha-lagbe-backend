@@ -1,19 +1,18 @@
 spring:
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/messseat?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Dhaka&characterEncoding=UTF-8}
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:Ab!dullah1}
+    url: ${DB_URL:}
+    username: ${DB_USERNAME:}
+    password: ${DB_PASSWORD:}
 
   jpa:
-    # table are fully managed using JPA entities classes
     hibernate:
       ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
     properties:
       hibernate:
         format_sql: true
 
-  # SMTP configuration
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
@@ -28,6 +27,9 @@ spring:
         transport:
           protocol: smtp
 
+server:
+  port: ${PORT:8080}
+
 app:
   otp:
     expiry-minutes: ${OTP_EXPIRY_MIN:5}
@@ -39,7 +41,7 @@ app:
     from: ${MAIL_FROM:Mess Seat <no-replay@messseat.com>}
 
   jwt:
-    secret: ${JWT_SECRET:q7v9Kx2mN8pL3sT5wY1zAbCdEfGhIjKlMnOpQrStUvWx=}
+    secret: ${JWT_SECRET:}
     access-token-ttl: ${JWT_ACCESS_TOKEN_TTL:15m}
     refresh-token-ttl: ${JWT_REFRESH_TOKEN_TTL:30d}
 
