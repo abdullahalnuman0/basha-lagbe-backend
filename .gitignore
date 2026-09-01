@@ -35,3 +35,4 @@ build/
 .env
 .env.*
 !.env.example
+dev.env
