@@ -77,7 +77,7 @@ public class EmailService {
             message.setTo(to);
             message.setSubject(subject);
             message.setText(body);
-//            sender.send(message); //todo: un comment this for email sending...
+            sender.send(message); //todo: un comment this for email sending...
             log.info("Email sent to {} ({}) code: {}", to, subject,otpForFallbackLog);
         } catch (Exception e) {
             log.error("Failed to send email to {}: {}{}", to, e.getMessage(),
