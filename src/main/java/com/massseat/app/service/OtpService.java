@@ -22,7 +22,8 @@ import java.time.temporal.ChronoUnit;
 public class OtpService {
 
     private final OtpTokenRepository otpTokenRepository;
-    private final EmailService emailService;
+//    private final EmailService emailService;
+    private final ResendEmailService emailService;
     private final AppProperties appProperties;
 
     private final SecureRandom random = new SecureRandom();
