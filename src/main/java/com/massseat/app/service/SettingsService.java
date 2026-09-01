@@ -1,27 +1,38 @@
 package com.massseat.app.service;
 
-public interface SettingsService {
+import com.massseat.app.entity.AppSetting;
+import com.massseat.app.repository.AppSettingRepository;
+import com.massseat.app.utls.SettingKeys;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
-    /**
-     * Retrieves a setting value by key.
-     * Returns the configured database value when available;
-     * otherwise, falls back to the default value.
-     */
-    String get(String key);
+@Service
+@RequiredArgsConstructor
+public class SettingsService {
 
-    /**
-     * Retrieves a setting value by key and converts it to a boolean.
-     * Returns {@code false} when the value is missing or not a valid boolean.
-     */
-    boolean getBoolean(String key);
+    private final AppSettingRepository repository;
 
-    /**
-     * Retrieves a setting value by key and converts it to an integer.
-     * Returns {@code 0} when the value is missing or cannot be parsed as an integer.
-     */
-    /**
-     * Retrieves a setting value by key and parses it as an integer.
-     * Returns the provided fallback value when the setting is missing or invalid.
-     */
-    int getInt(String key, int fallback);
+    @Transactional(readOnly = true)
+    public String get(String key) {
+        return repository.findByKey(key)
+                .map(AppSetting::getValue)
+                .filter(StringUtils::hasText)
+                .orElseGet(() -> SettingKeys.DEFAULT.getOrDefault(key, ""));
+    }
+
+    @Transactional(readOnly = true)
+    public boolean getBoolean(String key) {
+        return Boolean.parseBoolean(get(key));
+    }
+
+    @Transactional(readOnly = true)
+    public int getInt(String key, int fallback) {
+        try {
+            return Integer.parseInt(get(key).trim());
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
+    }
 }

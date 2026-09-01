@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
@@ -25,6 +26,13 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+
+    @Operation(summary = "Check email already registered or not")
+    @PostMapping("/email-verify")
+    public ResponseEntity<?> emailVerify(@Valid @RequestBody EmailRequest req) {
+        authService.emailVerify(req);
+        return ResponseEntity.ok().build();
+    }
 
     @Operation(summary = "Create a new account (an otp is send the email)")
     @PostMapping("/register")
@@ -51,6 +59,20 @@ public class AuthController {
     public AuthResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest) {
         return authService.login(request, clientIp(httpRequest));
     }
+
+    @PostMapping("/logout")
+    @Operation(summary = "Revoke a refresh token")
+    public Map<String, String> logout(@Valid @RequestBody RefreshTokenRequest req) {
+        authService.logout(req.getRefreshToken());
+        return Map.of("message", "Logged out");
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "Exchange a refresh token for a new token pair (rotation)")
+    public AuthResponse refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        return authService.refresh(request.getRefreshToken());
+    }
+
 
     @PostMapping("/forgot-password")
     @Operation(summary = "Send a password-reset OTP to the email (silent for unknown emails)")

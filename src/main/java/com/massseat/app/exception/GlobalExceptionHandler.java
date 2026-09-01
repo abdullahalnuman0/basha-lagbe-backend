@@ -1,6 +1,7 @@
 package com.massseat.app.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -8,11 +9,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = {Exception.class})
     public ResponseEntity<?> handleException(Exception e, HttpServletRequest req) {
+        log.error(e.getMessage(), e);
         return build(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), req, null);
     }
 
@@ -31,6 +34,19 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.UNAUTHORIZED, e.getMessage(), req, null);
     }
 
+    @ExceptionHandler(AccountStateException.class)
+    public ResponseEntity<ErrorResponse> handleAccountLifecycle(AccountStateException e, HttpServletRequest req) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(
+                        ErrorResponse.builder()
+                                .status(HttpStatus.FORBIDDEN.value())
+                                .error(HttpStatus.FORBIDDEN.getReasonPhrase())
+                                .message(e.getMessage())
+                                .path(req.getRequestURI())
+                                .code(e.getCode())
+                                .build()
+                );
+    }
 
     // --- Error message builder ---
     private ResponseEntity<ErrorResponse> build(HttpStatus status, String message, HttpServletRequest req, Map<String, String> fieldErrors) {

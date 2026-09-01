@@ -1,6 +1,7 @@
 package com.massseat.app.dto.auth;
 
 import com.massseat.app.entity.enums.Gender;
+import com.massseat.app.entity.enums.Role;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -29,6 +30,8 @@ public class RegisterRequest {
     private String password;
 
     private Gender gender;
+
+    private Role role;
 
     @Size(max = 100)
     private String division;

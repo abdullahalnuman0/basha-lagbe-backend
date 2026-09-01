@@ -41,9 +41,7 @@ public class User extends BaseEntity {
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 20)
-    private Set<Role> roles = new HashSet<>() {{
-        this.add(Role.USER);
-    }};
+    private Set<Role> roles = new HashSet<>();
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
@@ -108,5 +106,11 @@ public class User extends BaseEntity {
      * When the account was last restored (recovered from deletion, or un-suspended).
      */
     private Instant restoredAt;
+
+    // --- Login & Last seen track ---
+    private Instant lastLoginAt;
+    private Instant lastSeenAt;
+
+    // --- functions ---
 
 }

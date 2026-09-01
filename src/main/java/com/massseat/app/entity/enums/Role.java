@@ -1,7 +1,8 @@
 package com.massseat.app.entity.enums;
 
 public enum Role {
-    USER,
+    TENANT,
+    OWNER,
     MODERATOR,
     ADMIN
 }

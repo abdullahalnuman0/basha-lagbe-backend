@@ -44,12 +44,12 @@
         </dependency>
 
 
-        <!--&lt;!&ndash; Security &ndash;&gt;
+        <!-- Security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-        &lt;!&ndash; JWT &ndash;&gt;
+        <!-- JWT -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -66,7 +66,7 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>${jjwt.version}</version>
             <scope>runtime</scope>
-        </dependency>-->
+        </dependency>
 
 
         <!-- Mail -->
@@ -117,11 +117,11 @@
             <artifactId>spring-boot-starter-data-jpa-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security-test</artifactId>
             <scope>test</scope>
-        </dependency>-->
+        </dependency>
 
 
     </dependencies>

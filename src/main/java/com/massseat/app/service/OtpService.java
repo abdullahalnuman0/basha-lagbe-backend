@@ -1,36 +1,102 @@
 package com.massseat.app.service;
 
+import com.massseat.app.config.AppProperties;
+import com.massseat.app.entity.OtpToken;
 import com.massseat.app.entity.enums.OtpPurpose;
 import com.massseat.app.exception.BadRequestException;
+import com.massseat.app.repository.OtpTokenRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-public interface OtpService {
+import java.security.SecureRandom;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
-    /**
-     * Sends a fresh OTP after enforcing anti-abuse limits: a per-address resend
-     * cooldown and a rolling hourly cap. Throws {@link BadRequestException} when a
-     * limit is hit, so user-triggered resends surface the reason.
-     */
-    void sendOtp(String email, OtpPurpose purpose);
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class OtpService {
 
-    /**
-     * Sends an OTP but swallows a rate-limit rejection. Used where a flow must not
-     * fail just because a code was already sent moments ago — e.g. a returning
-     * user hammering login on a pending-deletion account. The already-sent code
-     * stays valid, so nothing is lost.
-     *
-     * <p>Runs in its own transaction (REQUIRES_NEW): the caller — login — throws
-     * an AccountStateException right after, which would otherwise roll the freshly
-     * saved OTP back with it. Committing independently keeps the code valid.
-     */
-    void sendOtpBestEffort(String email, OtpPurpose purpose);
+    private final OtpTokenRepository otpTokenRepository;
+    private final EmailService emailService;
+    private final AppProperties appProperties;
 
-    /**
-     * Verify the otp according to user request
-     * @param email request user email
-     * @param purpose which purpose user request to verify otp. likes, registration, password_reset, account_recover
-     * @param code otp code
-     */
-    void verifyOtp(String email, OtpPurpose purpose, String code);
+    private final SecureRandom random = new SecureRandom();
+
+    @Transactional
+    public void sendOtp(String email, OtpPurpose purpose) {
+        String normalised = email.toLowerCase();
+        enforceRateLimit(email, purpose);
+        issue(normalised, purpose);
+    }
 
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void sendOtpBestEffort(String email, OtpPurpose purpose) {
+        try {
+            String normalised = email.toLowerCase();
+            enforceRateLimit(normalised, purpose);
+            issue(normalised, purpose);
+        } catch (BadRequestException ex) {
+            log.debug("OTP for {} ({}) throttled - reusing the recent code: {}", email, purpose, ex.getMessage());
+        }
+    }
+
+    public void verifyOtp(String email, OtpPurpose purpose, String code) {
+        OtpToken token = otpTokenRepository
+                .findTopByEmailAndPurposeOrderByCreatedAtDesc(email.toLowerCase(), purpose)
+                .orElseThrow(() -> new BadRequestException("No OTP found. Please request for a new one."));
+
+        if (token.isUsed())
+            throw new BadRequestException("OTP is already used. Please request for a new one.");
+        if (token.getExpiresAt().isBefore(Instant.now()))
+            throw new BadRequestException("OTP has expired. Please request for a new one.");
+        if (token.getAttempts() >= appProperties.getOtp().getMaxAttempts())
+            throw new BadRequestException("Too many attempts. Please request for a new one.");
+        if (!token.getCode().equals(code)) {
+            token.setAttempts(token.getAttempts() + 1);
+            otpTokenRepository.save(token);
+            throw new BadRequestException("Invalid OTP code.");
+        }
+        token.setUsed(true);
+        otpTokenRepository.save(token);
+    }
+
+    //---------------------------------------------
+
+    private void enforceRateLimit(String email, OtpPurpose purpose) {
+        AppProperties.Otp cfg = appProperties.getOtp();
+
+        long recent = otpTokenRepository.countByEmailAndPurposeAndCreatedAtAfter(
+                email, purpose, Instant.now().minus(1, ChronoUnit.HOURS)
+        );
+        if (recent >= cfg.getMaxPerHour())
+            throw new BadRequestException("Too many verification codes requested. Please try again in an hour.");
+
+        otpTokenRepository.findTopByEmailAndPurposeOrderByCreatedAtDesc(email, purpose)
+                .ifPresent(last -> {
+                    long waited = Duration.between(last.getCreatedAt(), Instant.now())
+                            .getSeconds();
+                    long remaining = cfg.getResendCooldownSeconds() - waited;
+                    if (remaining > 0)
+                        throw new BadRequestException("Please wain " + remaining + " seconds before requesting another code.");
+                });
+    }
+
+    private void issue(String email, OtpPurpose purpose) {
+        String code = String.format("%06d", random.nextInt(1_000_000));
+        OtpToken otp = OtpToken.builder()
+                .email(email)
+                .code(code)
+                .purpose(purpose)
+                .expiresAt(Instant.now()
+                        .plus(appProperties.getOtp().getExpiryMinutes(), ChronoUnit.MINUTES))
+                .build();
+        otpTokenRepository.save(otp);
+        emailService.sendOtp(email, code, purpose.name());
+    }
 }
