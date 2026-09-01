@@ -1,24 +1,24 @@
-package com.massseat.app.service;
+package com.massseat.app.config;
 
-import com.massseat.app.config.AppProperties;
-import com.massseat.app.entity.enums.OtpPurpose;
+import com.massseat.app.service.SettingsService;
 import com.massseat.app.utls.SettingKeys;
 import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Value;
+import org.jspecify.annotations.NonNull;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.Properties;
 
 @Slf4j
-@Service
-public class EmailService {
+@Component
+@RequiredArgsConstructor
+public class DataSeeder implements CommandLineRunner {
 
     private final JavaMailSender envMailSender;
     private final boolean envSmtpConfigured;
@@ -26,32 +26,14 @@ public class EmailService {
 
     private final SettingsService settings;
 
-    public EmailService(
-            ObjectProvider<JavaMailSender> mailSenderProvider,
-            @Value("${spring.mail.host:}") String mailHost,
-            AppProperties properties,
-            SettingsService settings
-    ) {
-        this.envMailSender = mailSenderProvider.getIfAvailable();
-        this.envSmtpConfigured = (this.envMailSender != null && StringUtils.hasText(mailHost));
-        this.envFrom = properties.getMail().getFrom();
-        this.settings = settings;
 
-        if (envSmtpConfigured)
-            log.info("EmailService: SMTP configured from env ({})", mailHost);
-        else
-            log.warn("EmailService: no SMTP host in env — set it in Admin → Settings, "
-                    + "otherwise emails are logged to the console");
+    @Override
+    public void run(String @NonNull ... args) throws Exception {
 
-    }
-
-    @Async
-    public void sendOtp(String to, String code, String purpose) {
-        String subject = OtpPurpose.REGISTRATION.name().equals(purpose)
-                ? "Mass Seat — আপনার ইমেইল ভেরিফিকেশন কোড"
-                : "Mass Seat — পাসওয়ার্ড রিসেট কোড";
-
-        String body = """
+        String to = "abdullahalnumanb@gmail.com",
+                code = "123456",
+                subject = "Mass Seat — আপনার ইমেইল ভেরিফিকেশন কোড",
+                body = """
                 আসসালামু আলাইকুম,
                 
                 আপনার Mass Seat OTP কোড: %s
@@ -60,14 +42,11 @@ public class EmailService {
                 
                 — Mass Seat Team
                 """.formatted(code);
-        deliver(to, subject, body, code);
-    }
 
-    private void deliver(String to, String subject, String body, String otpForFallbackLog) {
         JavaMailSender sender = settings.getBoolean(SettingKeys.MAIL_ENABLED)
                 ? resolveSender() : null;
         if (sender == null) {
-            log.info("EMAIL->{}] {} - {}", to, subject, otpForFallbackLog != null ? "OTP: " + otpForFallbackLog : body);
+            log.info("EMAIL->{}] {} - {}", to, subject, "OTP: " + code);
             return;
         }
 
@@ -78,10 +57,10 @@ public class EmailService {
             message.setSubject(subject);
             message.setText(body);
             sender.send(message);
-            log.info("Email sent to {} ({}) code: {}", to, subject,otpForFallbackLog);
+            log.info("Email sent to {} ({}) code: {}", to, subject, code);
         } catch (Exception e) {
             log.error("Failed to send email to {}: {}{}", to, e.getMessage(),
-                    otpForFallbackLog != null ? " - fallback OTP: " + otpForFallbackLog : "");
+                    " - fallback OTP: " + code);
         }
     }
 
