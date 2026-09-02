@@ -22,15 +22,19 @@ public class BrevoEmailService {
     private final SettingsService settings;
     private final String resendPassword;
 
+    private final TelegramLogService telegramLog;
+
 
     public BrevoEmailService(
             @Value("${spring.mail.password:}") String resendPassword,
             AppProperties properties,
-            SettingsService settings
-    ) {
+            SettingsService settings,
+            TelegramLogService telegramLog
+            ) {
         this.resendPassword = resendPassword;
         this.envFrom = properties.getMail().getFrom();
         this.settings = settings;
+        this.telegramLog = telegramLog;
         log.info("EmailService: using Brevo API for email delivery. "
                 + "Set MAIL_ENABLED=true, MAIL_FROM=your_verified_email, and MAIL_PASSWORD=your_brevo_api_key in Admin Settings.");
     }
@@ -66,9 +70,25 @@ public class BrevoEmailService {
         try {
             sendWithBrevo(to, subject, body);
             log.info("Email sent to {} ({}) code: {}", to, subject, otpForFallbackLog);
+            telegramLog.info("""
+                    Email send successfully
+                    
+                    To: %s
+                    
+                    Subject: %s
+                    
+                    Body: %s",
+                    """.formatted(to, subject, body));
         } catch (Exception e) {
             log.error("Failed to send email to {}: {} - fallback OTP: {}",
                     to, e.getMessage(), otpForFallbackLog);
+            telegramLog.error("""
+                    Brevo email sending failed!
+                    
+                    To: %s
+                    
+                    Subject: %s
+                    """.formatted(to, subject));
         }
     }
 

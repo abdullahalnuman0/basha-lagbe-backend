@@ -8,7 +8,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -111,6 +113,14 @@ public class User extends BaseEntity {
     private Instant lastLoginAt;
     private Instant lastSeenAt;
 
-    // --- functions ---
+    // --- Relation mapping ---
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    @Builder.Default
+    private List<RefreshToken> refreshTokens = new ArrayList<>();
 
 }

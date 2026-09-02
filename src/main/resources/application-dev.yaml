@@ -45,5 +45,9 @@ app:
     access-token-ttl: ${JWT_ACCESS_TOKEN_TTL:15m}
     refresh-token-ttl: ${JWT_REFRESH_TOKEN_TTL:30d}
 
+  telegram:
+    bot-token: ${TELEGRAM_BOT_TOKEN}
+    chat-id: ${TELEGRAM_CHAT_ID}
+
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000,http://192.168.0.132:5173}

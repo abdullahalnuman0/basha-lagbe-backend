@@ -17,6 +17,7 @@ public class AppProperties {
     private final Mail mail = new Mail();
     private final Jwt jwt = new Jwt();
     private final Cors cors = new Cors();
+    private final Telegram telegram = new Telegram();
 
     @Getter
     @Setter
@@ -48,5 +49,12 @@ public class AppProperties {
     @Setter
     public static class Cors {
         private List<String> allowedOrigins = new ArrayList<>();
+    }
+
+    @Getter
+    @Setter
+    public static class Telegram {
+        private String BotToken;
+        private String ChatId;
     }
 }
