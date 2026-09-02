@@ -85,10 +85,12 @@ public class BrevoEmailService {
             telegramLog.error("""
                     Brevo email sending failed!
                     
+                    Error: %s
+                    
                     To: %s
                     
                     Subject: %s
-                    """.formatted(to, subject));
+                    """.formatted(e.getMessage(),to, subject));
         }
     }
 
