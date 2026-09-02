@@ -17,7 +17,7 @@ import org.springframework.util.StringUtils;
 import java.util.Properties;
 
 @Slf4j
-@Service
+//@Service
 public class EmailService {
 
     private final JavaMailSender envMailSender;

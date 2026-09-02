@@ -11,18 +11,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
-//@Service
-public class ResendEmailService {
+@Service
+public class BrevoEmailService {
 
     private final String envFrom;
     private final SettingsService settings;
-
     private final String resendPassword;
 
-    public ResendEmailService(
+
+    public BrevoEmailService(
             @Value("${spring.mail.password:}") String resendPassword,
             AppProperties properties,
             SettingsService settings
@@ -30,9 +31,8 @@ public class ResendEmailService {
         this.resendPassword = resendPassword;
         this.envFrom = properties.getMail().getFrom();
         this.settings = settings;
-
-        log.info("EmailService: using Resend API for email delivery. "
-                + "Set MAIL_ENABLED=true and MAIL_PASSWORD=your_resend_api_key in Admin Settings.");
+        log.info("EmailService: using Brevo API for email delivery. "
+                + "Set MAIL_ENABLED=true, MAIL_FROM=your_verified_email, and MAIL_PASSWORD=your_brevo_api_key in Admin Settings.");
     }
 
     @Async
@@ -54,6 +54,7 @@ public class ResendEmailService {
         deliver(to, subject, body, code);
     }
 
+
     private void deliver(String to, String subject, String body, String otpForFallbackLog) {
         boolean mailEnabled = settings.getBoolean(SettingKeys.MAIL_ENABLED);
         if (!mailEnabled) {
@@ -63,7 +64,7 @@ public class ResendEmailService {
         }
 
         try {
-            sendWithResend(to, subject, body);
+            sendWithBrevo(to, subject, body);
             log.info("Email sent to {} ({}) code: {}", to, subject, otpForFallbackLog);
         } catch (Exception e) {
             log.error("Failed to send email to {}: {} - fallback OTP: {}",
@@ -72,47 +73,64 @@ public class ResendEmailService {
     }
 
 
-    private void sendWithResend(String to, String subject, String textBody) {
+    private void sendWithBrevo(String to, String subject, String textBody) {
         String apiKey = resendPassword == null || resendPassword.isEmpty()
                 ? settings.get(SettingKeys.MAIL_PASSWORD)
                 : resendPassword;
 
         if (!StringUtils.hasText(apiKey)) {
-            throw new IllegalStateException("(" + apiKey + ")Resend API key is missing. Set MAIL_PASSWORD in settings.");
+            throw new IllegalStateException("Brevo API key is missing. Set MAIL_PASSWORD in settings.");
         }
 
-        String from = resolveFrom();
-        if (!StringUtils.hasText(from)) {
+        String fromRaw = resolveFrom();
+        if (!StringUtils.hasText(fromRaw)) {
             throw new IllegalStateException("Mail FROM address is missing. Set MAIL_FROM in settings.");
         }
 
-        // RestClient তৈরি – প্রতি কলেই নতুন করে তৈরি করছি (বা বিন হিসেবেও দেওয়া যায়)
+        // --- separate name & email ---
+        String senderName = null;
+        String senderEmail = fromRaw;
+
+        // if formate "Name <email@domain.com>" the well be parsed
+        if (fromRaw.contains("<") && fromRaw.contains(">")) {
+            int startName = 0;
+            int endName = fromRaw.indexOf('<');
+            senderName = fromRaw.substring(startName, endName).trim();
+            int startEmail = fromRaw.indexOf('<') + 1;
+            int endEmail = fromRaw.indexOf('>');
+            senderEmail = fromRaw.substring(startEmail, endEmail).trim();
+        }
+        // if only email, then senderName = null , (using Brevo default)
+
+        // RestClient create
         RestClient restClient = RestClient.builder()
-                .baseUrl("https://api.resend.com")
-                .defaultHeader("Authorization", "Bearer " + apiKey)
+                .baseUrl("https://api.brevo.com/v3")
+                .defaultHeader("api-key", apiKey)
                 .defaultHeader("Content-Type", "application/json")
                 .build();
 
-        // রিকোয়েস্ট বডি
+        // payload create
+        Map<String, Object> senderMap = Map.of("email", senderEmail);
+        if (senderName != null && !senderName.isEmpty()) {
+            senderMap = Map.of("email", senderEmail, "name", senderName);
+        }
+
         Map<String, Object> payload = Map.of(
-                "from", from,
-                "to", new String[]{to},
+                "sender", senderMap,
+                "to", List.of(Map.of("email", to)),
                 "subject", subject,
-                "text", textBody
+                "textContent", textBody
         );
 
-        // POST কল
         restClient.post()
-                .uri("/emails")
+                .uri("/smtp/email")
                 .body(payload)
                 .retrieve()
-                .toBodilessEntity(); // আমরা রেসপন্স বডি ব্যবহার করছি না, শুধু স্ট্যাটাস চেক করি
+                .toBodilessEntity();
     }
 
     private @NotNull String resolveFrom() {
         String configured = settings.get(SettingKeys.MAIL_FROM);
         return StringUtils.hasText(configured) ? configured : envFrom;
     }
-
-
 }

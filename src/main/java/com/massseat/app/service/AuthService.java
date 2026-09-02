@@ -15,6 +15,7 @@ import com.massseat.app.repository.UserRepository;
 import com.massseat.app.security.jwt.JwtService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -142,7 +144,7 @@ public class AuthService {
         User user = userRepository.findByEmail(req.getEmail().toLowerCase())
                 .orElseThrow(() -> new ResourceNotFoundException("No account found for this email"));
         otpService.verifyOtp(req.getEmail(), OtpPurpose.PASSWORD_RESET, req.getCode());
-        user.setPasswordHash(req.getNewPassword()); // saved the pass convert to hash/ security
+        user.setPasswordHash(passwordEncoder.encode(req.getNewPassword()));
         userRepository.save(user);
     }
 

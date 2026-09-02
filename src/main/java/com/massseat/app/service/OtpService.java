@@ -23,7 +23,8 @@ public class OtpService {
 
     private final OtpTokenRepository otpTokenRepository;
 //    private final EmailService emailService;
-    private final ResendEmailService emailService;
+//    private final ResendEmailService emailService;
+    private final BrevoEmailService emailService;
     private final AppProperties appProperties;
 
     private final SecureRandom random = new SecureRandom();
