@@ -2,12 +2,11 @@ package com.massseat.app.service;
 
 import com.massseat.app.config.AppProperties;
 import com.massseat.app.entity.enums.OtpPurpose;
-import com.massseat.app.utls.SettingKeys;
+import com.massseat.app.utils.SettingKeys;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 

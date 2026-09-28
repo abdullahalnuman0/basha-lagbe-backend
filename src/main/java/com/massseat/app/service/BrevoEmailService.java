@@ -2,7 +2,7 @@ package com.massseat.app.service;
 
 import com.massseat.app.config.AppProperties;
 import com.massseat.app.entity.enums.OtpPurpose;
-import com.massseat.app.utls.SettingKeys;
+import com.massseat.app.utils.SettingKeys;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +30,7 @@ public class BrevoEmailService {
             AppProperties properties,
             SettingsService settings,
             TelegramLogService telegramLog
-            ) {
+    ) {
         this.resendPassword = resendPassword;
         this.envFrom = properties.getMail().getFrom();
         this.settings = settings;
@@ -90,7 +90,7 @@ public class BrevoEmailService {
                     To: %s
                     
                     Subject: %s
-                    """.formatted(e.getMessage(),to, subject));
+                    """.formatted(e.getMessage(), to, subject));
         }
     }
 

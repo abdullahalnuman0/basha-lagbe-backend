@@ -14,9 +14,9 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = {Exception.class})
-    public ResponseEntity<?> handleException(Exception e, HttpServletRequest req) {
-        log.error(e.getMessage(), e);
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), req, null);
+    public ResponseEntity<?> handleGeneric(Exception e, HttpServletRequest req) {
+        log.error("Unhandled exception", e);
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong", req, null);
     }
 
     @ExceptionHandler(BadRequestException.class)

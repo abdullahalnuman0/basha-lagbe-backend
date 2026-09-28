@@ -123,4 +123,13 @@ public class User extends BaseEntity {
     @Builder.Default
     private List<RefreshToken> refreshTokens = new ArrayList<>();
 
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    @Builder.Default
+    private List<Property> properties = new ArrayList<>();
+
 }

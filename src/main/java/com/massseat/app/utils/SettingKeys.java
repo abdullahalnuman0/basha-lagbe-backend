@@ -1,4 +1,4 @@
-package com.massseat.app.utls;
+package com.massseat.app.utils;
 
 import java.util.Map;
 

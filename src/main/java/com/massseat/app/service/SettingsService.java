@@ -2,7 +2,7 @@ package com.massseat.app.service;
 
 import com.massseat.app.entity.AppSetting;
 import com.massseat.app.repository.AppSettingRepository;
-import com.massseat.app.utls.SettingKeys;
+import com.massseat.app.utils.SettingKeys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

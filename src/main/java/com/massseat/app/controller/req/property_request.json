@@ -1,0 +1,47 @@
+{
+  "title": "Sunshine Boys Hostel",
+  "description": "A comfortable and secure hostel for male students located near Dhaka University. Offers modern amenities and a friendly environment.",
+  "division": "Dhaka",
+  "district": "Dhaka",
+  "area": "Dhanmondi",
+  "address": "House 12, Road 5, Dhanmondi R/A, Dhaka 1205",
+  "contactNumber": "+8801712345678",
+  "institutionNearby": "Dhaka University",
+  "type": "HOSTEL",
+  "gender": "MALE",
+  "facilities": [
+    "WiFi",
+    "24/7 Security",
+    "Laundry",
+    "Dining Hall",
+    "Generator Backup",
+    "Rooftop Garden"
+  ],
+  "rooms": [
+    {
+      "roomNumber": "101",
+      "type": "SINGLE",
+      "price": 8000,
+      "deposit": 5000,
+      "availableSeats": 1,
+      "roomWidth": 12,
+      "roomHeight": 14,
+      "images": [
+        "https://example.com/images/room101_1.jpg",
+        "https://example.com/images/room101_2.jpg"
+      ]
+    },
+    {
+      "roomNumber": "102",
+      "type": "DOUBLE",
+      "price": 6000,
+      "deposit": 4000,
+      "availableSeats": 2,
+      "roomWidth": 14,
+      "roomHeight": 16,
+      "images": [
+        "https://example.com/images/room102_1.jpg"
+      ]
+    }
+  ]
+}

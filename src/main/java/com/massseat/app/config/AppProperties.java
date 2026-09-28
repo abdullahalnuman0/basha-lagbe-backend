@@ -2,6 +2,7 @@ package com.massseat.app.config;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,8 @@ public class AppProperties {
     private final Jwt jwt = new Jwt();
     private final Cors cors = new Cors();
     private final Telegram telegram = new Telegram();
+    private final Upload upload = new Upload();
+    private final CloudflareR2Properties r2Properties=new CloudflareR2Properties();
 
     @Getter
     @Setter
@@ -54,7 +57,26 @@ public class AppProperties {
     @Getter
     @Setter
     public static class Telegram {
-        private String BotToken;
-        private String ChatId;
+        private String botToken;
+        private String chatId;
+        private boolean logEnable;
+    }
+
+    @Getter
+    @Setter
+    public static class Upload {
+        private String dir;
+        private String baseUrl;
+    }
+
+    @Getter
+    @Setter
+    @ToString
+    public static class CloudflareR2Properties {
+        private String accountId;
+        private String accessKey;
+        private String secretKey;
+        private String bucketName;
+        private String publicUrl;
     }
 }

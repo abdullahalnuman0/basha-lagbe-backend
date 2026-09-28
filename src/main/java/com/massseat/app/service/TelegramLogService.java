@@ -1,5 +1,6 @@
 package com.massseat.app.service;
 
+import com.massseat.app.config.AppProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -15,18 +16,16 @@ import java.util.Map;
 public class TelegramLogService {
 
     private final RestClient restClient;
-    private final String botToken;
-    private final String chatId;
+
+    private AppProperties.Telegram telegram;
 
     private static final DateTimeFormatter DATE_FORMAT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public TelegramLogService(
-            @Value("${telegram.bot-token}") String botToken,
-            @Value("${telegram.chat-id}") String chatId
+            AppProperties appProperties
     ) {
-        this.botToken = botToken;
-        this.chatId = chatId;
+        this.telegram = appProperties.getTelegram();
 
         this.restClient = RestClient.builder()
                 .baseUrl("https://api.telegram.org")
@@ -74,12 +73,17 @@ public class TelegramLogService {
 
     private void send(String level, String message) {
 
-        if (botToken == null || botToken.isBlank()) {
+        if (telegram.isLogEnable()) {
+            log.info("Telegram log service is not enable");
+            return;
+        }
+
+        if (telegram.getBotToken() == null || telegram.getBotToken().isBlank()) {
             log.warn("Telegram bot token is missing.");
             return;
         }
 
-        if (chatId == null || chatId.isBlank()) {
+        if (telegram.getChatId() == null || telegram.getChatId().isBlank()) {
             log.warn("Telegram chat ID is missing.");
             return;
         }
@@ -88,11 +92,11 @@ public class TelegramLogService {
 
         String text = """
                 %s
-
+                
                 🕐 Time: %s
                 📦 Application: DormEasy
                 🌍 Environment: Development
-
+                
                 %s
                 """.formatted(
                 level,
@@ -103,9 +107,9 @@ public class TelegramLogService {
         try {
 
             restClient.post()
-                    .uri("/bot{token}/sendMessage", botToken)
+                    .uri("/bot{token}/sendMessage", telegram.getBotToken())
                     .body(Map.of(
-                            "chat_id", chatId,
+                            "chat_id", telegram.getChatId(),
                             "text", text
                     ))
                     .retrieve()
@@ -113,10 +117,6 @@ public class TelegramLogService {
 
         } catch (Exception e) {
 
-            /*
-             * Telegram fail করলে আবার Telegram-এ error পাঠানোর চেষ্টা করা যাবে না।
-             * এতে infinite loop হতে পারে।
-             */
             log.error(
                     "Failed to send log to Telegram: {}",
                     e.getMessage()

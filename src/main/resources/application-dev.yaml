@@ -7,11 +7,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database-platform: ${DB_PLATFORM}
     open-in-view: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
 
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
@@ -27,6 +27,12 @@ spring:
         transport:
           protocol: smtp
 
+  # File upload config
+  servlet:
+    multipart:
+      max-file-size: ${MAX_UPLOAD_FILE_SIZE}
+      max-request-size: ${MAX_UPLOAD_FILE_REQUEST_SIZE}
+
 server:
   port: ${PORT:8080}
 
@@ -38,7 +44,7 @@ app:
     max-attempts: ${OTP_MAX_ATTEMPTS:5}
 
   mail:
-    from: ${MAIL_FROM:Mess Seat <no-replay@messseat.com>}
+    from: ${MAIL_FROM}
 
   jwt:
     secret: ${JWT_SECRET:}
@@ -48,6 +54,24 @@ app:
   telegram:
     bot-token: ${TELEGRAM_BOT_TOKEN}
     chat-id: ${TELEGRAM_CHAT_ID}
+    log-enable: ${TELEGRAM_LOG_ENABLE:false}
+
+  upload:
+    dir: ${UPLOAD_DIR:uploads}
+    base-url: ${UPLOAD_BASE_URL:http://localhost:8080}
+
+  # Cloudflare R2 config
+  r2-properties:
+    account-id: ${R2_ACCOUNT_ID}
+    access-key: ${R2_ACCESS_KEY}
+    secret-key: ${R2_SECRET_KEY}
+    bucket-name: ${R2_BUCKET_NAME}
+    public-url: ${R2_PUBLIC_URL}
 
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000,http://192.168.0.132:5173}
+
+#logging:
+#  level:
+#    org.hibernate.SQL: DEBUG
+#    org.hibernate.orm.jdbc.bind: TRACE
