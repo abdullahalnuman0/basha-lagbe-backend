@@ -1,4 +1,4 @@
-package com.massseat.app.dto.room;
+package com.massseat.app.dto.tenant;
 
 import com.massseat.app.entity.enums.PropertyGender;
 import com.massseat.app.entity.enums.PropertyType;

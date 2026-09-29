@@ -61,38 +61,4 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
             Pageable pageable
     );
 
-    /**
-     * ইউজারের লোকেশনের কাছাকাছি রুম খোঁজা (হোমপেজের জন্য)
-     */
-    @Query("""
-            SELECT r FROM Room r
-            JOIN r.property p
-            WHERE p.isApproved = true
-            AND p.division = :division
-            AND p.district = :district
-            ORDER BY p.createdAt DESC
-            """)
-    Page<Room> findNearbyRoomsByLocation(
-            @Param("division") String division,
-            @Param("district") String district,
-            Pageable pageable
-    );
-
-    /**
-     * সুবিধার ভিত্তিতে রুম খোঁজা
-     */
-    @Query("""
-            SELECT DISTINCT r FROM Room r
-            JOIN r.property p
-            WHERE p.isApproved = true
-            AND (:division IS NULL OR p.division = :division)
-            AND (:district IS NULL OR p.district = :district)
-            AND (:area IS NULL OR p.area = :area)
-            """)
-    Page<Room> searchRoomsByLocationWithFacilities(
-            @Param("division") String division,
-            @Param("district") String district,
-            @Param("area") String area,
-            Pageable pageable
-    );
 }

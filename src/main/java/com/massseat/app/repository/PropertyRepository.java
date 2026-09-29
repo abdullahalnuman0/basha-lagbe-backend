@@ -35,12 +35,10 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
             """)
     int approveExpiredProperties(@Param("cutoff") Instant cutoff);
 
-//=======================================================
-/**
- * Tenant এর জন্য Property সার্চ এবং ফিল্টার Repository
- * এখানে শুধুমাত্র APPROVED properties দেখানো হবে
- */
-//=======================================================
+    //=======================================================
+    // Tenant এর জন্য Property সার্চ এবং ফিল্টার Repository
+    // এখানে শুধুমাত্র APPROVED properties দেখানো হবে
+    //=======================================================
 
     /**
      * Location এবং অন্যান্য filters এর ভিত্তিতে Property খোঁজা
@@ -65,56 +63,4 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
             Pageable pageable
     );
 
-    /**
-     * ইউজারের লোকেশনের কাছাকাছি প্রপার্টি খোঁজা (হোমপেজের জন্য)
-     */
-    @Query("""
-            SELECT p FROM Property p
-            WHERE p.isApproved = true
-            AND p.division = :division
-            AND p.district = :district
-            ORDER BY p.createdAt DESC
-            """)
-    Page<Property> findNearbyPropertiesByLocation(
-            @Param("division") String division,
-            @Param("district") String district,
-            Pageable pageable
-    );
-
-    /**
-     * Title এবং ডেসক্রিপশন অনুযায়ী Property সার্চ
-     */
-    @Query("""
-            SELECT p FROM Property p
-            WHERE p.isApproved = true
-            AND (LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
-            OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%')))
-            AND (:division IS NULL OR p.division = :division)
-            AND (:district IS NULL OR p.district = :district)
-            ORDER BY p.createdAt DESC
-            """)
-    Page<Property> searchPropertiesByKeyword(
-            @Param("keyword") String keyword,
-            @Param("division") String division,
-            @Param("district") String district,
-            Pageable pageable
-    );
-
-    /**
-     * সর্বোচ্চ available seats আছে এমন properties খোঁজা
-     */
-    @Query("""
-            SELECT p FROM Property p
-            WHERE p.isApproved = true
-            AND (:division IS NULL OR p.division = :division)
-            AND (:district IS NULL OR p.district = :district)
-            AND (SELECT COALESCE(SUM(r.availableSeats), 0) FROM Room r WHERE r.property = p) >= :minSeats
-            ORDER BY p.createdAt DESC
-            """)
-    Page<Property> searchPropertiesByAvailableSeats(
-            @Param("division") String division,
-            @Param("district") String district,
-            @Param("minSeats") Integer minSeats,
-            Pageable pageable
-    );
 }
