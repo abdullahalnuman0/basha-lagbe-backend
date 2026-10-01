@@ -28,18 +28,25 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TenantService {
 
-    private final RoomRepository tenantRepository;
-    private final PropertyRepository tenantPropertyRepository;
+    private final RoomRepository roomRepository;
+    private final PropertyRepository propertyRepository;
 
 
     @Transactional(readOnly = true)
     public PageResponse<RoomTenantResponse> searchRooms(
             TenantSearchCriteria criteria, Pageable pageable
     ) {
-        log.info("ROOM_WISE Search: division={}, district={}, area={}",
-                criteria.getDivision(), criteria.getDistrict(), criteria.getArea());
+        log.info(
+                "ROOM search: keyword={}, division={}, district={}, area={}, minRoomSize={}",
+                criteria.getKeyword(),
+                criteria.getDivision(),
+                criteria.getDistrict(),
+                criteria.getArea(),
+                criteria.getMinRoomSize()
+        );
 
-        Page<Room> rooms = tenantRepository.searchRoomsByFilters(
+        Page<Room> rooms = roomRepository.searchRoomsByFilters(
+                criteria.getKeyword(),
                 criteria.getDivision(),
                 criteria.getDistrict(),
                 criteria.getArea(),
@@ -48,6 +55,7 @@ public class TenantService {
                 criteria.getMaxRent(),
                 criteria.getMinAvailableSeats(),
                 criteria.getMaxAvailableSeats(),
+                criteria.getMinRoomSize(),
                 criteria.getPropertyType(),
                 criteria.getGender(),
                 pageable
@@ -67,7 +75,7 @@ public class TenantService {
         log.info("PROPERTY_WISE Search: division={}, district={}, area={}",
                 criteria.getDivision(), criteria.getDistrict(), criteria.getArea());
 
-        Page<Property> properties = tenantPropertyRepository.searchPropertiesByFilters(
+        Page<Property> properties = propertyRepository.searchPropertiesByFilters(
                 criteria.getDivision(),
                 criteria.getDistrict(),
                 criteria.getArea(),
@@ -90,7 +98,7 @@ public class TenantService {
     @Transactional(readOnly = true)
     public RoomTenantResponse getRoomDetail(Long roomId) {
 
-        Room room = tenantRepository.findById(roomId)
+        Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Room", roomId));
 
         // Check যে property approved আছে কিনা
@@ -104,7 +112,7 @@ public class TenantService {
     @Transactional(readOnly = true)
     public PropertyTenantResponse getPropertyDetail(Long propertyId) {
 
-        Property property = tenantPropertyRepository.findById(propertyId)
+        Property property = propertyRepository.findById(propertyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Property", propertyId));
 
         // Check যে property approved আছে কিনা
@@ -115,6 +123,13 @@ public class TenantService {
         return convertPropertyToTenantResponse(property);
     }
 
+    //================================================
+    // Count methods
+    //================================================
+    @Transactional
+    public void updateRoomView(long roomId){
+        roomRepository.incrementTotalViews(roomId);
+    }
 
     // ===============================================
     // Helper methods

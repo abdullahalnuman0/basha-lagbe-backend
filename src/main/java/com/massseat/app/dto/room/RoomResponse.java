@@ -23,6 +23,8 @@ public class RoomResponse {
     private List<String> images;
     private Instant createdAt;
 
+    private long totalViews;
+
     //----------------------------------
     public static RoomResponse from(Room room) {
         return RoomResponse.builder()
@@ -36,6 +38,7 @@ public class RoomResponse {
                 .roomHeight(room.getRoomHeight())
                 .images(room.getImages())
                 .createdAt(room.getCreatedAt())
+                .totalViews(room.getTotalViews())
                 .build();
     }
 

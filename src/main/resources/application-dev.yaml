@@ -34,7 +34,7 @@ spring:
       max-request-size: ${MAX_UPLOAD_FILE_REQUEST_SIZE}
 
 server:
-  port: ${PORT:8080}
+  port: ${PORT:8081}
 
 app:
   otp:

@@ -18,6 +18,9 @@ import java.util.List;
 @AllArgsConstructor
 public class TenantSearchCriteria {
 
+    // ============ Free-text search ============
+    private String keyword;
+
     // ============ Location Based Filtering ============
     private String division;
     private String district;

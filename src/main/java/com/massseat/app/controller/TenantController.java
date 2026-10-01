@@ -13,10 +13,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Tenant (ইউজার) সাইডের কন্ট্রোলার
@@ -88,5 +85,15 @@ public class TenantController {
     ) {
         PropertyTenantResponse response = tenantService.getPropertyDetail(propertyId);
         return ResponseEntity.ok(response);
+    }
+
+
+    //================================================
+    // Count methods
+    //================================================
+    @PutMapping("/rooms/{roomId}")
+    public ResponseEntity<Void> updateRoomView(@PathVariable Long roomId) {
+        tenantService.updateRoomView(roomId);
+        return ResponseEntity.ok().build();
     }
 }
