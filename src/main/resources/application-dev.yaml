@@ -68,6 +68,9 @@ app:
     bucket-name: ${R2_BUCKET_NAME}
     public-url: ${R2_PUBLIC_URL}
 
+  fcm:
+    service-account-file: ${FCM_SERVICE_ACCOUNT_FILE:dorameasy-firebase-adminsdk-fbsvc-e6ae53151c.json}
+
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000,http://192.168.0.132:5173}
 

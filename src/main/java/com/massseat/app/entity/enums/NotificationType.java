@@ -1,0 +1,13 @@
+package com.massseat.app.entity.enums;
+
+public enum NotificationType {
+    PROPERTY_RECEIVED,
+    PROPERTY_ACCEPTED,
+    PROPERTY_REJECTED,
+    NEW_MESSAGE,
+    VERIFICATION_APPROVED,
+    VERIFICATION_REJECTED,
+    REPORT_RESOLVED,
+    NEARBY_POST,
+    SYSTEM
+}

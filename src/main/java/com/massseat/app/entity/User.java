@@ -74,6 +74,10 @@ public class User extends BaseEntity {
      */
     private Instant termsAcceptedAt;
 
+    /** Firebase Cloud Messaging device token for web push. */
+    @Column(length = 512)
+    private String fcmToken;
+
     // ---- Account lifecycle: self-service deletion ----
 
     /**
@@ -112,6 +116,10 @@ public class User extends BaseEntity {
     // --- Login & Last seen track ---
     private Instant lastLoginAt;
     private Instant lastSeenAt;
+
+    public boolean isOnline() {
+        return lastSeenAt != null && lastSeenAt.isAfter(Instant.now().minusSeconds(120));
+    }
 
     // --- Relation mapping ---
     @OneToMany(

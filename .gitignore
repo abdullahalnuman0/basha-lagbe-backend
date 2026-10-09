@@ -36,3 +36,4 @@ build/
 .env.*
 !.env.example
 dev.env
+dorameasy-firebase-adminsdk-fbsvc-e6ae53151c.json

@@ -111,6 +111,13 @@
             <version>${cloudflare-aws-sdk-version}</version>
         </dependency>
 
+        <!-- Firebase Cloud Messaging (push notifications) -->
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>9.11.0</version>
+        </dependency>
+
         <!-- API documentation (Swagger UI) -->
         <dependency>
             <groupId>org.springdoc</groupId>

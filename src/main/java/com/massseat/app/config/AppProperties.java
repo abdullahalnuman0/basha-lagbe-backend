@@ -21,6 +21,8 @@ public class AppProperties {
     private final Telegram telegram = new Telegram();
     private final Upload upload = new Upload();
     private final CloudflareR2Properties r2Properties=new CloudflareR2Properties();
+    private final Fcm fcm = new Fcm();
+
 
     @Getter
     @Setter
@@ -78,5 +80,11 @@ public class AppProperties {
         private String secretKey;
         private String bucketName;
         private String publicUrl;
+    }
+
+    @Getter
+    @Setter
+    public static class Fcm {
+        private String serviceAccountFile = "";
     }
 }

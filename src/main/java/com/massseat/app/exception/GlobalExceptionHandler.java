@@ -48,6 +48,11 @@ public class GlobalExceptionHandler {
                 );
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleForbidden(ForbiddenException ex, HttpServletRequest req) {
+        return build(HttpStatus.FORBIDDEN, ex.getMessage(), req, null);
+    }
+
     // --- Error message builder ---
     private ResponseEntity<ErrorResponse> build(HttpStatus status, String message, HttpServletRequest req, Map<String, String> fieldErrors) {
         return ResponseEntity.status(status)

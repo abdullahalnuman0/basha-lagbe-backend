@@ -58,7 +58,8 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/error",
                                 "/api/v1/files/{*fileKey}",
-                                "/api/v1/files/test/list"
+                                "/api/v1/files/test/list",
+                                "/ws/**"
                         ).permitAll()
 //                        .requestMatchers(
 //                                HttpMethod.GET,
