@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 
 public interface RoomRepository extends JpaRepository<Room, Long> {
 
@@ -176,4 +178,19 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
         WHERE r.id = :roomId
     """)
     int incrementTotalViews(@Param("roomId") long roomId);
+
+    /**
+     * Find approved rooms by IDs for saved rooms list.
+     */
+    @Query("""
+    SELECT r
+    FROM Room r
+    JOIN FETCH r.property p
+    JOIN FETCH p.user
+    WHERE r.id IN :roomIds
+    AND p.isApproved = true
+    """)
+    List<Room> findApprovedRoomsByIds(
+            @Param("roomIds") List<Long> roomIds
+    );
 }

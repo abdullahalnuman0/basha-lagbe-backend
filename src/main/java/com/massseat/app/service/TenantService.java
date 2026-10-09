@@ -18,6 +18,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Tenant এর জন্য সার্চ এবং ফিল্টার সার্ভিস
@@ -129,6 +133,42 @@ public class TenantService {
     @Transactional
     public void updateRoomView(long roomId){
         roomRepository.incrementTotalViews(roomId);
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<RoomTenantResponse> getSavedRooms(List<Long> roomIds) {
+
+        if (roomIds == null || roomIds.isEmpty()) {
+            return List.of();
+        }
+
+        // Keep the input order and remove duplicate IDs.
+        List<Long> orderedIds = roomIds.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        if (orderedIds.isEmpty()) {
+            return List.of();
+        }
+
+        // Fetch only approved rooms.
+        List<Room> rooms = roomRepository.findApprovedRoomsByIds(orderedIds);
+
+        // The database does not guarantee the order of IN-query results.
+        Map<Long, Room> roomMap = rooms.stream()
+                .collect(Collectors.toMap(
+                        Room::getId,
+                        Function.identity()
+                ));
+
+        // Restore the IDs' original order and convert to response DTOs.
+        return orderedIds.stream()
+                .map(roomMap::get)
+                .filter(Objects::nonNull)
+                .map(this::convertRoomToTenantResponse)
+                .toList();
     }
 
     // ===============================================

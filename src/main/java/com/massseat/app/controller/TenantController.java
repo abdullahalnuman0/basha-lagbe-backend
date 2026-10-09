@@ -2,18 +2,22 @@ package com.massseat.app.controller;
 
 import com.massseat.app.dto.tenant.PropertyTenantResponse;
 import com.massseat.app.dto.tenant.RoomTenantResponse;
+import com.massseat.app.dto.tenant.SavedRoomsRequest;
 import com.massseat.app.dto.tenant.TenantSearchCriteria;
 import com.massseat.app.service.TenantService;
 import com.massseat.app.utils.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Tenant (ইউজার) সাইডের কন্ট্রোলার
@@ -23,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/tenant")
 @RequiredArgsConstructor
 @Tag(
-        name = "01. Tenant (User)",
+        name = "Tenant (User)",
         description = "ইউজারদের জন্য - রুম এবং প্রপার্টি খোঁজা, সার্চ এবং ফিল্টার"
 )
 public class TenantController {
@@ -85,6 +89,20 @@ public class TenantController {
     ) {
         PropertyTenantResponse response = tenantService.getPropertyDetail(propertyId);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/rooms/saved")
+    @Operation(
+            summary = "Get saved rooms",
+            description = "Returns complete details of approved rooms using saved room IDs"
+    )
+    public ResponseEntity<List<RoomTenantResponse>> getSavedRooms(
+            @Valid @RequestBody SavedRoomsRequest request
+    ) {
+        List<RoomTenantResponse> rooms =
+                tenantService.getSavedRooms(request.roomIds());
+
+        return ResponseEntity.ok(rooms);
     }
 
 
