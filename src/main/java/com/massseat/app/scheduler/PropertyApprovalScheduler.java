@@ -23,12 +23,12 @@ public class PropertyApprovalScheduler {
 
     private static final long APPROVAL_HOURS = 1;
 
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 * * * * *")
     @Transactional
     public void approvePendingProperties() {
 
         Instant cutoff = Instant.now()
-                .minus(APPROVAL_HOURS, ChronoUnit.HOURS);
+                .minus(APPROVAL_HOURS, ChronoUnit.MINUTES);
         // Step 1: Find pending properties older than cutoff
         List<Property> properties =
                 propertyRepository
