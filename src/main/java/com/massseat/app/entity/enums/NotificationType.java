@@ -2,6 +2,7 @@ package com.massseat.app.entity.enums;
 
 public enum NotificationType {
     PROPERTY_RECEIVED,
+    PROPERTY_PENDING_APPROVAL,
     PROPERTY_ACCEPTED,
     PROPERTY_REJECTED,
     NEW_MESSAGE,

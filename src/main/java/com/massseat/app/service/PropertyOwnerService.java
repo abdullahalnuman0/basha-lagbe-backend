@@ -10,6 +10,8 @@ import com.massseat.app.dto.room.RoomResponse;
 import com.massseat.app.entity.Property;
 import com.massseat.app.entity.Room;
 import com.massseat.app.entity.User;
+import com.massseat.app.entity.enums.NotificationType;
+import com.massseat.app.entity.enums.NotyRefType;
 import com.massseat.app.exception.ResourceNotFoundException;
 import com.massseat.app.repository.PropertyRepository;
 import com.massseat.app.repository.RoomRepository;
@@ -34,6 +36,7 @@ public class PropertyOwnerService {
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
     private final FileStorageService fileStorageService;
+    private final NotificationService notificationService;
 
     public PropertyOwnerResponse create(long userId, PropertyOwnerRequest req) {
         User owner = userRepository.findById(userId)
@@ -70,6 +73,16 @@ public class PropertyOwnerService {
         post.setRooms(rooms);
 
         propertyRepository.save(post);
+
+        // Notify user for post
+        notificationService.notify(
+                owner,
+                "Property Submitted for Approval",
+                "Your property has been submitted successfully and is now pending admin approval. We’ll notify you once it’s approved.",
+                NotificationType.PROPERTY_PENDING_APPROVAL,
+                NotyRefType.OWNER_POST,
+                post.getId()
+        );
 
         // remove image form temp file track
         fileStorageService.removeFromTrack(

@@ -35,6 +35,10 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
             """)
     int approveExpiredProperties(@Param("cutoff") Instant cutoff);
 
+    List<Property> findAllByIsApprovedFalseAndCreatedAtBefore(
+            Instant cutoff
+    );
+
     //=======================================================
     // Tenant এর জন্য Property সার্চ এবং ফিল্টার Repository
     // এখানে শুধুমাত্র APPROVED properties দেখানো হবে

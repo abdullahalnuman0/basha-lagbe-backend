@@ -2,6 +2,7 @@ package com.massseat.app.service;
 
 import com.massseat.app.dto.notification.NotificationResponse;
 import com.massseat.app.entity.Notification;
+import com.massseat.app.entity.Property;
 import com.massseat.app.entity.User;
 import com.massseat.app.entity.enums.NotificationType;
 import com.massseat.app.entity.enums.NotyRefType;
@@ -13,10 +14,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -27,6 +30,21 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final FcmService fcmService;
+
+    @Async
+    @Transactional
+    public void pendingPostApproval(List<Property> properties) {
+        properties.forEach(property -> {
+            notify(
+                    property.getUser(),
+                    "Property Approved Successfully!",
+                    "Great news! Your property has been approved and is now live on MessSeat. Users can now discover your property and explore its rooms.",
+                    NotificationType.PROPERTY_ACCEPTED,
+                    NotyRefType.OWNER_POST,
+                    property.getId()
+            );
+        });
+    }
 
     @Transactional
     public void notify(User recipient, String title, String body, NotificationType type,
